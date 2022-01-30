@@ -3,6 +3,15 @@ const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const flash = require("connect-flash");
+
+const sessionOptions = {
+  secret: "thisisnotagoodsecret",
+  resave: false,
+  saveUninitialized: false,
+};
+app.use(session(sessionOptions));
+app.use(flash());
 
 const Farm = require("./models/farm");
 
@@ -24,14 +33,15 @@ app.set("view engine", "ejs");
 
 // FARM ROUTES
 
-app.use((req, res, next) => {
-  res.locals.messages = req.flash("success");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.locals.messages = req.flash("success");
+//   next();
+// });
 
+// pass in the flash as req.flash with the key specified ...
 app.get("/farms", async (req, res) => {
   const farms = await Farm.find({});
-  res.render("farms/index", { farms });
+  res.render("farms/index", { farms, messages: req.flash("success") });
 });
 app.get("/farms/new", (req, res) => {
   res.render("farms/new");
@@ -44,7 +54,9 @@ app.get("/farms/:id", async (req, res) => {
 app.post("/farms", async (req, res) => {
   const farm = new Farm(req.body);
   await farm.save();
+  //
   req.flash("success", "Successfully made a new farm!");
+  //   call req.flash bfore redirecting, set key to 'success' and then the message
   res.redirect("/farms");
 });
 
