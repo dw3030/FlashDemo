@@ -33,15 +33,16 @@ app.set("view engine", "ejs");
 
 // FARM ROUTES
 
-// app.use((req, res, next) => {
-//   res.locals.messages = req.flash("success");
-//   next();
-// });
+// set up a middleware to add onto the res object in a way that every view will have access to flash msgs via the locals prop
+app.use((req, res, next) => {
+  res.locals.messages = req.flash("success");
+  next();
+});
 
 // pass in the flash as req.flash with the key specified ...
 app.get("/farms", async (req, res) => {
   const farms = await Farm.find({});
-  res.render("farms/index", { farms, messages: req.flash("success") });
+  res.render("farms/index", { farms });
 });
 app.get("/farms/new", (req, res) => {
   res.render("farms/new");
